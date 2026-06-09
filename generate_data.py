@@ -113,6 +113,68 @@ with open('data/am_data.jsonl', 'w') as f:
 
 print("Data generation complete. Customer, PM, and AM data saved.")
 
+# 3. Generate Unstructured Data (Manuals & Transcripts)
+print("Generating Unstructured Data (Manuals & Transcripts)...")
+
+os.makedirs('data/manuals', exist_ok=True)
+os.makedirs('data/transcripts', exist_ok=True)
+
+# A. Troubleshooting Manual
+manual_content = """# Ericsson 5G Core Network Troubleshooting Manual v4.2
+
+## Section 1: Overview
+This document provides troubleshooting steps for the Ericsson 5G Core Network nodes including AMF, SMF, and UPF.
+
+## Section 2: Error Codes and Remediation
+
+### ERR-001: Minor Sync Issue
+* **Description:** Temporary synchronization loss between nodes.
+* **Remediation:** No action required. Node will auto-recover within 5 minutes.
+
+### ERR-5G-CORE-099: Critical Control Plane Latency
+* **Description:** Severe latency and packet drops in the Access and Mobility Management Function (AMF) signaling plane. Usually caused by misconfigured flow control parameters under high load.
+* **Remediation:** 
+    1. Isolate the affected AMF node.
+    2. Access the node configuration terminal.
+    3. Update the parameter `flow_control_window_size` from default (1024) to 4096.
+"""
+with open('data/manuals/Ericsson_Core_Network_Manual_v4.2.md', 'w') as f:
+    f.write(manual_content)
+
+# B. Hardware Specs Manual
+hardware_content = """# Cisco Nexus 9000 Series Switch Specs
+## Optical Transceiver Guidelines
+For UPF routing nodes, ensure optical transceivers are clean.
+**Symptom:** Packet drop > 2% often indicates dirty fiber optics.
+**Action:** Dispatch field technician to clean LC connectors and replace SFP+ module if TX power is below -10dBm.
+"""
+with open('data/manuals/Hardware_Specs_UPF.md', 'w') as f:
+    f.write(hardware_content)
+
+# C. Customer Support Transcripts (Injecting specific customers affected by AMF-01)
+# We will pick 3 random premium customers who were affected by the AMF-01 spike
+affected_premium = [c for c in customers if c['plan_type'] == 'Premium 5G'][:3]
+
+for i, customer in enumerate(affected_premium):
+    transcript = f"""Call ID: CALL-{random.randint(100000, 999999)}
+Date: {datetime.now().strftime('%Y-%m-%d')}
+Agent: Sarah Jenkins
+Customer: {customer['first_name']} {customer['last_name']}
+
+[00:00:12] Agent: Thank you for calling Acme Telco Support, how can I help you today?
+[00:00:15] Customer: Hi, yeah, my 5G internet has been completely unusable since yesterday. I pay for the Premium 5G plan and I can't even load a webpage.
+[00:00:28] Agent: I am so sorry to hear that. I can certainly look into this for you. Can I get your phone number?
+[00:00:32] Customer: Yes, it's {customer['msisdn']}. 
+[00:00:40] Agent: Thank you. I see your account here. Let me run a diagnostic.
+[00:01:05] Agent: It looks like there is a known network outage in your area affecting our core nodes. Engineers are currently working on it.
+[00:01:15] Customer: Well how long is that going to take? I work from home.
+[00:01:20] Agent: We expect it to be resolved within 4 hours. I will issue a $20 credit to your account for the inconvenience.
+"""
+    with open(f"data/transcripts/transcript_{customer['msisdn'].replace('+','')}.txt", 'w') as f:
+        f.write(transcript)
+
+print("Unstructured Data Generation Complete!")
+
 
 # 3. Generate Unstructured Data (Markdown Manual)
 print("Generating Unstructured Data...")
