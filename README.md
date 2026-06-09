@@ -23,6 +23,9 @@ This repository contains the setup and ingestion scripts for the **Agentic Data 
    - Allows BigQuery SQL to seamlessly call Cloud DLP to mask specific columns natively within a SQL query.
    - Includes automatic batching/chunking to optimize performance and adhere to API limits.
 
+6. **`upload_unstructured_to_gcs.sh` & `setup_vertex_ai_bq.sh`**
+   - Helper scripts to upload unstructured PDFs/Transcripts to Cloud Storage and automatically create the necessary BigQuery Object Tables and Vertex AI connections (`gemini-conn`) for multi-modal analysis.
+
 ## Setup Instructions
 
 1. **Install Dependencies:**
@@ -48,6 +51,12 @@ This repository contains the setup and ingestion scripts for the **Agentic Data 
 5. **Deploy the DLP Proxy (For BigQuery Remote Functions):**
    ```bash
    ./deploy_function.sh
+   ```
+
+6. **Setup Unstructured Data & AI Connections:**
+   ```bash
+   ./upload_unstructured_to_gcs.sh
+   ./setup_vertex_ai_bq.sh
    ```
 
 *See `Demo_Walkthrough.md` (Artifact) for the exact Data Engineering Agent prompts and BigQuery configurations used during the live demonstration.*

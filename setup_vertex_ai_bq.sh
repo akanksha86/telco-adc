@@ -8,8 +8,8 @@ echo "1. Creating Vertex AI Connection 'gemini-conn' in BigQuery..."
 bq mk --connection --location=$REGION --project_id=$PROJECT_ID --connection_type=CLOUD_RESOURCE gemini-conn 2>/dev/null || true
 
 echo "2. Retrieving Service Account for the connection..."
-# Using grep and awk instead of jq to ensure compatibility across all mac environments
-SA_EMAIL=$(bq show --format=json --connection ${PROJECT_ID}.${REGION}.gemini-conn | grep -o '"serviceAccountId": "[^"]*' | cut -d'"' -f4)
+# Using python to reliably parse JSON output
+SA_EMAIL=$(bq show --format=json --connection ${PROJECT_ID}.${REGION}.gemini-conn | python3 -c "import sys, json; data=json.load(sys.stdin); print(data.get('cloudResource', {}).get('serviceAccountId', ''))")
 
 if [ -z "$SA_EMAIL" ]; then
     echo "Error: Could not retrieve service account email for the connection."
