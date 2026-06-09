@@ -1,0 +1,18 @@
+{"timestamp": "2026-06-07T21:37:52.726046", "node_id": "SMF-01", "alarm_id": "ALARM-9536", "severity": "WARNING", "description": "Routine node sync issue", "error_code": "ERR-001"}
+{"timestamp": "2026-06-07T22:07:52.726046", "node_id": "AMF-02", "alarm_id": "ALARM-3777", "severity": "MINOR", "description": "Routine node sync issue", "error_code": "ERR-001"}
+{"timestamp": "2026-06-07T23:37:52.726046", "node_id": "AMF-01", "alarm_id": "ALARM-9145", "severity": "WARNING", "description": "Routine node sync issue", "error_code": "ERR-002"}
+{"timestamp": "2026-06-08T01:07:52.726046", "node_id": "AMF-01", "alarm_id": "ALARM-1887", "severity": "MINOR", "description": "Routine node sync issue", "error_code": "ERR-001"}
+{"timestamp": "2026-06-08T04:07:52.726046", "node_id": "UPF-01", "alarm_id": "ALARM-9375", "severity": "WARNING", "description": "Routine node sync issue", "error_code": "ERR-002"}
+{"timestamp": "2026-06-08T06:07:52.726046", "node_id": "AMF-01", "alarm_id": "ALARM-6025", "severity": "WARNING", "description": "Routine node sync issue", "error_code": "ERR-002"}
+{"timestamp": "2026-06-08T12:07:52.726046", "node_id": "SMF-01", "alarm_id": "ALARM-4186", "severity": "WARNING", "description": "Routine node sync issue", "error_code": "ERR-001"}
+{"timestamp": "2026-06-08T14:07:52.726046", "node_id": "AMF-02", "alarm_id": "ALARM-4130", "severity": "MINOR", "description": "Routine node sync issue", "error_code": "ERR-001"}
+{"timestamp": "2026-06-08T16:37:52.726046", "node_id": "UPF-01", "alarm_id": "ALARM-8864", "severity": "MINOR", "description": "Routine node sync issue", "error_code": "ERR-001"}
+{"timestamp": "2026-06-08T17:07:52.726046", "node_id": "SMF-01", "alarm_id": "ALARM-8712", "severity": "MINOR", "description": "Routine node sync issue", "error_code": "ERR-001"}
+{"timestamp": "2026-06-08T19:07:52.726046", "node_id": "AMF-02", "alarm_id": "ALARM-7113", "severity": "MINOR", "description": "Routine node sync issue", "error_code": "ERR-001"}
+{"timestamp": "2026-06-08T20:07:52.726046", "node_id": "AMF-01", "alarm_id": "ALARM-8082", "severity": "CRITICAL", "description": "High latency and packet drop detected in control plane signaling.", "error_code": "ERR-5G-CORE-099"}
+{"timestamp": "2026-06-08T20:37:52.726046", "node_id": "UPF-01", "alarm_id": "ALARM-2727", "severity": "WARNING", "description": "Routine node sync issue", "error_code": "ERR-001"}
+{"timestamp": "2026-06-09T08:07:52.726046", "node_id": "SMF-01", "alarm_id": "ALARM-5321", "severity": "MINOR", "description": "Routine node sync issue", "error_code": "ERR-002"}
+{"timestamp": "2026-06-09T11:07:52.726046", "node_id": "AMF-02", "alarm_id": "ALARM-3450", "severity": "MINOR", "description": "Routine node sync issue", "error_code": "ERR-002"}
+{"timestamp": "2026-06-09T14:07:52.726046", "node_id": "UPF-02", "alarm_id": "ALARM-5720", "severity": "WARNING", "description": "Routine node sync issue", "error_code": "ERR-002"}
+{"timestamp": "2026-06-09T18:07:52.726046", "node_id": "SMF-01", "alarm_id": "ALARM-3110", "severity": "MINOR", "description": "Routine node sync issue", "error_code": "ERR-002"}
+{"timestamp": "2026-06-09T19:07:52.726046", "node_id": "SMF-01", "alarm_id": "ALARM-2690", "severity": "WARNING", "description": "Routine node sync issue", "error_code": "ERR-001"}
