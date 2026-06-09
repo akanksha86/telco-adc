@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+data/
+Acme Telco demo doc.pdf
+.DS_Store
