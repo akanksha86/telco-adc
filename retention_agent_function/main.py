@@ -37,24 +37,26 @@ def process_metadata_change(cloud_event):
             
         print(f"Fetching full Entry snapshot from Dataplex for: {entry_name}")
         
-        # 3. Fetch the full Aspect payload from Dataplex API (requires view=ALL)
-        import google.auth
-        import google.auth.transport.requests
-        import urllib.request
+        # 3. Fetch the full Aspect payload from Dataplex API
+        from google.cloud import dataplex_v1
         
-        credentials, project = google.auth.default()
-        auth_req = google.auth.transport.requests.Request()
-        credentials.refresh(auth_req)
-        
-        url = f"https://dataplex.googleapis.com/v1/{entry_name}?view=FULL"
-        req = urllib.request.Request(url)
-        req.add_header("Authorization", f"Bearer {credentials.token}")
+        # The Python SDK CatalogServiceClient handles all URL encoding and authentication
+        client = dataplex_v1.CatalogServiceClient()
         
         try:
-            with urllib.request.urlopen(req) as response:
-                entry_data = json.loads(response.read().decode())
+            # We must specify we want all aspects using the aspect_types parameter
+            request = dataplex_v1.GetEntryRequest(
+                name=entry_name,
+                view=dataplex_v1.EntryView.FULL
+            )
+            entry = client.get_entry(request=request)
+            
+            # Convert protobuf to dict to make it easier to search
+            import proto
+            entry_data = type(entry).to_dict(entry)
+            print(f"Successfully fetched Entry from Dataplex SDK")
         except Exception as e:
-            print(f"Failed to fetch Dataplex entry: {e}")
+            print(f"Failed to fetch Dataplex entry via SDK: {e}")
             return
             
         # 4. Search for retention_days inside the fetched Entry aspects
