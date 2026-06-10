@@ -14,11 +14,11 @@ def process_metadata_change(cloud_event):
     print(f"Received event: {cloud_event}")
     
     # 1. Extract Pub/Sub Message payload
-    if "data" not in cloud_event.data or "message" not in cloud_event.data["data"]:
+    if "message" not in cloud_event.data:
         print("Invalid Pub/Sub payload structure.")
         return
 
-    pubsub_message = cloud_event.data["data"]["message"]
+    pubsub_message = cloud_event.data["message"]
     if "data" not in pubsub_message:
         print("No data in Pub/Sub message.")
         return
@@ -27,14 +27,38 @@ def process_metadata_change(cloud_event):
     print(f"Decoded metadata change event: {decoded_data}")
     
     try:
-        # 2. Parse the Dataplex Event
         payload = json.loads(decoded_data)
         
-        # Real Dataplex Metadata Change Feeds deliver complex JSON containing Entry and Aspect details.
-        # We need to dynamically extract the table/dataset name and search for our 'retention_policy' aspect.
+        # 2. Extract Entry Name
+        entry_name = payload.get("entryName")
+        if not entry_name:
+            print("No entryName found in payload.")
+            return
+            
+        print(f"Fetching full Entry snapshot from Dataplex for: {entry_name}")
         
+        # 3. Fetch the full Aspect payload from Dataplex API (requires view=ALL)
+        import google.auth
+        import google.auth.transport.requests
+        import urllib.request
+        
+        credentials, project = google.auth.default()
+        auth_req = google.auth.transport.requests.Request()
+        credentials.refresh(auth_req)
+        
+        url = f"https://dataplex.googleapis.com/v1/{entry_name}?view=FULL"
+        req = urllib.request.Request(url)
+        req.add_header("Authorization", f"Bearer {credentials.token}")
+        
+        try:
+            with urllib.request.urlopen(req) as response:
+                entry_data = json.loads(response.read().decode())
+        except Exception as e:
+            print(f"Failed to fetch Dataplex entry: {e}")
+            return
+            
+        # 4. Search for retention_days inside the fetched Entry aspects
         retention_days = None
-        # Recursively search for the "retention_days" key anywhere in the payload (in case of nested Aspect payloads)
         def find_retention_days(d):
             if isinstance(d, dict):
                 if "retention_days" in d:
@@ -43,20 +67,29 @@ def process_metadata_change(cloud_event):
                     res = find_retention_days(v)
                     if res is not None:
                         return res
+            elif isinstance(d, list):
+                for item in d:
+                    res = find_retention_days(item)
+                    if res is not None:
+                        return res
             return None
             
-        retention_days = find_retention_days(payload)
-        
-        # In a real environment, you parse the BigQuery FQN from the Dataplex Entry Name:
-        # e.g., 'bigquery:telco-kc.raw_telco_data.am_data_streaming'
-        # For demo fallback, we attempt to extract it or default to the streaming table.
-        resource_name = payload.get("resource_name", "telco-kc.raw_telco_data.am_data_streaming")
-        resource_type = payload.get("resource_type", "TABLE").upper()
+        retention_days = find_retention_days(entry_data.get("aspects", {}))
         
         if retention_days is None:
-            print("No 'retention_days' aspect update found in this event. Ignoring.")
+            print("No 'retention_days' aspect update found on this entry. Ignoring.")
             return
             
+        # Extract BQ table name from fullyQualifiedName (e.g. bigquery:telco-kc.raw_telco_data.am_data_streaming)
+        fqn = payload.get("fullyQualifiedName", "")
+        if fqn.startswith("bigquery:"):
+            resource_name = fqn.split(":", 1)[1]
+        else:
+            resource_name = "telco-kc.raw_telco_data.am_data_streaming"
+            
+        resource_type = "TABLE" if "tables" in entry_name else "DATASET"
+        
+        
         print(f"Agent Triggered: Enforcing {retention_days} days retention on {resource_type} {resource_name}")
         
         # 3. Generate the physical DDL command
