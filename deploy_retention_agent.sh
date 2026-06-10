@@ -1,5 +1,5 @@
 #!/bin/bash
-PROJECT_ID=${GCP_PROJECT:-"telco-kc"}
+PROJECT_ID="telco-kc"
 REGION="us-central1"
 TOPIC_NAME="dataplex-metadata-changes"
 

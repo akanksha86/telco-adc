@@ -25,7 +25,10 @@ def setup_feed():
     }
     
     payload = {
-        "topic": f"projects/{project_id}/topics/dataplex-metadata-changes"
+        "pubsubTopic": f"projects/{project_id}/topics/dataplex-metadata-changes",
+        "scope": {
+            "projects": [f"projects/{project_id}"]
+        }
     }
     
     data = json.dumps(payload).encode('utf-8')
