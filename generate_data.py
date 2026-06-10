@@ -71,6 +71,7 @@ with open('data/pm_data.csv', 'w', newline='') as f:
 # 2. Generate AM Data (Semi-Structured - JSONL)
 print("Generating AM Data...")
 am_data = []
+affected_premium_customers = []
 current_time = start_time
 
 while current_time < datetime.now():
@@ -92,7 +93,9 @@ while current_time < datetime.now():
     # Critical alarms for AMF-01
     if (datetime.now() - current_time).total_seconds() < 86400 and (datetime.now() - current_time).total_seconds() > 40000:
         if random.random() < 0.6:
-             customer = random.choice(customers)
+             customer = random.choice([c for c in customers if c['plan_type'] == 'Premium 5G'])
+             if customer not in affected_premium_customers:
+                 affected_premium_customers.append(customer)
              am_data.append({
                 'timestamp': current_time.isoformat(),
                 'node_id': 'AMF-01',
@@ -152,8 +155,8 @@ with open('data/manuals/Hardware_Specs_UPF.md', 'w') as f:
     f.write(hardware_content)
 
 # C. Customer Support Transcripts (Injecting specific customers affected by AMF-01)
-# We will pick 3 random premium customers who were affected by the AMF-01 spike
-affected_premium = [c for c in customers if c['plan_type'] == 'Premium 5G'][:3]
+# We will pick 3 premium customers who were actually affected by the AMF-01 spike
+affected_premium = affected_premium_customers[:3]
 
 for i, customer in enumerate(affected_premium):
     transcript = f"""Call ID: CALL-{random.randint(100000, 999999)}
