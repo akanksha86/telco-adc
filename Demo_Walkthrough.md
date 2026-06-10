@@ -114,8 +114,15 @@ The final pillar of the Agentic Data Cloud is making security, compliance, and g
 
 Back in **BigQuery Studio**, open the Data Engineering Agent and showcase the following prompts:
 
-1. **Data Retention (Dataset & Table Level)**:
-> *"Write a SQL statement to alter the `raw_telco_data` dataset and set the default table expiration to 90 days. Then, write another statement to alter the `am_data_streaming` table to expire after 7 days since it's high-volume ephemeral data."*
+1. **Active Metadata Governance (The Retention Agent)**:
+In the Agentic Data Cloud, we don't write manual retention scripts. Instead, we use a **Retention Agent** connected to the Knowledge Catalog's **Metadata Change Feeds**.
+* **Setup**: Deploy the agent using the included script:
+  ```bash
+  chmod +x deploy_retention_agent.sh
+  ./deploy_retention_agent.sh
+  ```
+* **Demo**: In the Knowledge Catalog UI, find the `raw_telco_data.am_data_streaming` table and attach a Custom Aspect representing your Retention Policy (e.g., 7 days).
+* **The Magic**: The moment you save the Aspect in the UI, Dataplex fires a Metadata Change Feed event to Pub/Sub. The Retention Agent Cloud Function intercepts this event, parses your declarative policy, and automatically translates it into the physical BigQuery DDL (`ALTER TABLE ... SET OPTIONS`) behind the scenes! Your Data Stewards never have to write SQL.
 
 2. **Dataset & Table RBAC**:
 > *"Write a SQL statement to grant the `roles/bigquery.dataViewer` role on the `raw_telco_data` dataset to the group `data-analysts@acme.com`. Then, grant the same role explicitly on the `pm_data_secured` table to `contractor@acme.com`."*
