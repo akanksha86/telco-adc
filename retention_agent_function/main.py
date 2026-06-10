@@ -64,7 +64,16 @@ def process_metadata_change(cloud_event):
         def find_retention_days(d):
             if isinstance(d, dict):
                 if "retention_days" in d:
-                    return d["retention_days"]
+                    val = d["retention_days"]
+                    if isinstance(val, dict):
+                        # Handle protobuf Struct encoding (e.g. {'number_value': 10.0})
+                        if "number_value" in val:
+                            return val["number_value"]
+                        elif "numberValue" in val:
+                            return val["numberValue"]
+                        else:
+                            return list(val.values())[0]
+                    return val
                 for v in d.values():
                     res = find_retention_days(v)
                     if res is not None:
