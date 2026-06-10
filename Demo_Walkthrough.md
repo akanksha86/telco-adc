@@ -96,7 +96,13 @@ Now we bring in Unstructured Data (Network Troubleshooting Manuals and Customer 
 > *"Using BigQuery DataFrames (`bigframes`), write code to train a K-Means clustering model named `node_risk_clusters` on the `raw_telco_data.pm_data_secured` table. Cluster the nodes based on `latency_ms` and `packet_drop_rate_percent` using 3 clusters to identify high-risk nodes."*
 *(Run the generated cell. This demonstrates how data scientists can build BQML models directly in Python without writing SQL!)*
 
-4. **Multi-Modal Data Correlation**: This is the magic moment. We will use `ML.GENERATE_TEXT` with Gemini to extract the customer's phone number from the raw text transcript, and instantly join it with our structured PM/AM data and our new BQML predictions!
+4. **"What-If" Inference with BigFrames**: Let's see the model in action on synthetic edge-case data! Ask the Data Science Agent:
+> *"Create a pandas DataFrame with 5 hypothetical network nodes. Make one of the nodes ('AMF-01') have extremely high `latency_ms` (150ms) and `packet_drop_rate_percent` (4.5%), and make the other 4 nodes have normal metrics (20ms latency, 0.1% packet drop). Convert this pandas DataFrame to a BigQuery DataFrame (`bigframes`), and then use the `node_risk_clusters` BQML K-Means model to predict the clusters for this new data. Display the results."*
+
+5. **Cluster Explainability**: We can use generative AI to assign human-readable descriptions to our mathematical clusters. Ask the Agent:
+> *"For the K-Means model created above `node_risk_clusters`, help create the description for the 3 clusters and append it to the results from running the prediction."*
+
+6. **Multi-Modal Data Correlation**: This is the magic moment. We will use `ML.GENERATE_TEXT` with Gemini to extract the customer's phone number from the raw text transcript, and instantly join it with our structured PM/AM data!
 In the notebook, ask the Data Science Agent:
 > *"Write a SQL query using the `%%bigquery` magic command. Use `ML.GENERATE_TEXT` with the `gemini-pro` model and connection `gemini-conn` to extract the customer's MSISDN phone number from the `raw_telco_data.support_transcripts` object table text. Then, join that extracted MSISDN with the `customer_data` and `am_data` tables. Finally, join that with the `pm_data_secured` table to show the latency of the node they were attached to. Return the customer name, their complaint text, the alarm severity, and the node's latency."*
 
