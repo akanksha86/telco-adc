@@ -107,3 +107,24 @@ In the notebook, ask the Data Science Agent:
 > *"Write a SQL query using the `%%bigquery` magic command. Use `ML.GENERATE_TEXT` with the `gemini-pro` model and connection `gemini-conn` to extract the customer's MSISDN phone number from the `raw_telco_data.support_transcripts` object table text. Ensure you trim whitespace from the extracted string. Then, join that extracted MSISDN with `customer_data.msisdn` using the `ENDS_WITH` function (to account for missing country codes or '+' signs). Next, join `customer_data` to `am_data` on `imsi = affected_imsi`. Finally, join `am_data` to `pm_data_secured` on `node_id`. Return the customer name, the text snippet of their complaint, the alarm severity, and the node's latency."*
 
 Gemini will generate a powerful multi-modal query right in your notebook that bridges the gap between angry customer calls and physical 5G antenna telemetry!
+
+## Step 5: Automated Governance & Security (RBAC, RLS, CLS)
+
+The final pillar of the Agentic Data Cloud is making security, compliance, and governance effortless. We can use the Data Engineering Agent to generate and deploy DDL policies instantly!
+
+Back in **BigQuery Studio**, open the Data Engineering Agent and showcase the following prompts:
+
+1. **Data Retention (Dataset & Table Level)**:
+> *"Write a SQL statement to alter the `raw_telco_data` dataset and set the default table expiration to 90 days. Then, write another statement to alter the `am_data_streaming` table to expire after 7 days since it's high-volume ephemeral data."*
+
+2. **Dataset & Table RBAC**:
+> *"Write a SQL statement to grant the `roles/bigquery.dataViewer` role on the `raw_telco_data` dataset to the group `data-analysts@acme.com`. Then, grant the same role explicitly on the `pm_data_secured` table to `contractor@acme.com`."*
+
+3. **Row-Level Security (RLS)**:
+> *"Write a SQL statement to create a row access policy on the `customer_data` table named `filter_premium_customers`. It should grant access to `support-tier1@acme.com` but filter the rows so they can only see customers where `plan_type = 'Basic'`."*
+
+4. **Column-Level Security (CLS)**:
+*(Note: To execute this, you need to have a pre-existing taxonomy in Data Catalog. If you don't, you can just show the generated code!)*
+> *"Write a SQL statement to alter the `customer_data` table and apply a Data Catalog policy tag (e.g., `projects/telco-kc/locations/us-central1/taxonomies/123/policyTags/456`) to the `imsi` column to restrict access to highly sensitive identifiers."*
+
+By using the Agent, administrators don't need to memorize complex BigQuery DCL/DDL syntax—they just describe their compliance requirements in plain English!
