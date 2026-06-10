@@ -110,13 +110,18 @@ Gemini will generate a powerful multi-modal query right in your notebook that br
 
 ## Step 5: Automated Governance & Security (RBAC, RLS, CLS)
 
-The final pillar of the Agentic Data Cloud is making security, compliance, and governance effortless. We can use the Data Engineering Agent to generate and deploy DDL policies instantly!
-
-Back in **BigQuery Studio**, open the Data Engineering Agent and showcase the following prompts:
+The final pillar of the Agentic Data Cloud is making security, compliance, and governance effortless.
 
 1. **Active Metadata Governance (The Retention Agent)**:
 In the Agentic Data Cloud, we don't write manual retention scripts. Instead, we use a **Retention Agent** connected to the Knowledge Catalog's **Metadata Change Feeds**.
-* **Setup**: Deploy the agent using the included script:
+* **Setup**: 
+  First, grant the default compute service account the permissions needed to execute BigQuery DDL on behalf of the Cloud Function (replace `<PROJECT_ID>` and `<PROJECT_NUMBER>` accordingly, e.g. `telco-kc` and `568311752105`):
+  ```bash
+  gcloud projects add-iam-policy-binding <PROJECT_ID> \
+      --member="serviceAccount:<PROJECT_NUMBER>-compute@developer.gserviceaccount.com" \
+      --role="roles/bigquery.admin"
+  ```
+  Then, deploy the agent using the included script:
   ```bash
   chmod +x deploy_retention_agent.sh
   ./deploy_retention_agent.sh
