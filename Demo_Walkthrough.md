@@ -1,0 +1,103 @@
+# Agentic Data Cloud Demo Walkthrough
+
+## Step 1: Agentic Ingestion (Hybrid to Cloud)
+Run the ingestion script. This will use the Python agent to read the hybrid AM data and mask it in-flight, while uploading the PM data completely **RAW** so we can demo native BigQuery Active Scanning later.
+
+```bash
+python3 agentic_ingestion.py
+```
+
+## Step 2: Setting up BigQuery DLP Remote Function Architecture
+
+BigQuery Remote Functions require a proxy (like Cloud Functions or Cloud Run) to parse the BigQuery request schema and pass it to the DLP API.
+
+1. **Create the DLP Template**: Run the setup script to create the DLP De-identify Template in `us-central1`.
+```bash
+python3 setup_dlp_template.py
+```
+
+2. **Deploy the Cloud Function Proxy**: We've included a Python script that acts as the proxy. Deploy it using the provided shell script:
+```bash
+chmod +x deploy_function.sh
+./deploy_function.sh
+```
+*(Once deployed, copy the HTTPS Trigger URL from the terminal output)*
+
+3. **Create the BigQuery Connection**: In your terminal, create a Cloud Resource connection for BigQuery to call the function:
+```bash
+bq mk --connection --location=us-central1 --project_id=telco-kc --connection_type=CLOUD_RESOURCE dlp-conn
+```
+
+4. **Grant IAM Permissions**: Get the Service Account ID of the connection you just created:
+```bash
+bq show --connection telco-kc.us-central1.dlp-conn
+```
+*(Copy the `serviceAccountId` from the output and run the following commands, replacing `<SERVICE_ACCOUNT_EMAIL>`)*
+```bash
+gcloud projects add-iam-policy-binding telco-kc \
+  --member="serviceAccount:<SERVICE_ACCOUNT_EMAIL>" \
+  --role="roles/dlp.user"
+
+gcloud run services add-iam-policy-binding dlp-proxy \
+  --region=us-central1 \
+  --member="serviceAccount:<SERVICE_ACCOUNT_EMAIL>" \
+  --role="roles/run.invoker" \
+  --project=telco-kc
+```
+
+4. **Get the Cloud Function URL**: Run this to get your Cloud Function's Endpoint URL:
+```bash
+gcloud functions describe dlp_proxy --region us-central1 --format="value(serviceConfig.uri)"
+```
+
+## Step 3: Demoing with the Data Engineering Agent
+
+Now, open **BigQuery Studio** in the Google Cloud Console.
+
+### Phase 3A: Active Scanning (Remote Function)
+Open the **Data Engineering Agent (Gemini)** pane and use the following prompt (replace `<YOUR_CLOUD_FUNCTION_URL>` with the URL from Step 2):
+
+> *"Write a SQL script to create a BigQuery remote function named `mask_ip` in the `raw_telco_data` dataset. It should use the connection `telco-kc.us-central1.dlp-conn` and the endpoint `<YOUR_CLOUD_FUNCTION_URL>`. Then, use this function to select all data from `pm_data`, masking the `node_ip` column, and save the result into a new table called `pm_data_secured`."*
+
+Gemini will generate the `CREATE OR REPLACE FUNCTION` and the `CREATE TABLE AS SELECT` statements, automatically routing the data through your Cloud Function proxy for DLP masking!
+
+### Phase 3B: Conversational Correlation & Proactive Outreach
+Now that all data is in BigQuery (including the new Customer table), use the Data Engineering Agent to synthesize the silos and identify high-value impact:
+
+> *"Join `pm_data_secured`, `am_data`, and `customer_data`. Find all 'Premium 5G' customers who were affected by 'CRITICAL' latency alarms on node 'AMF-01' over the last 48 hours. I need their first names and emails so we can proactively send them an apology credit, but make sure to exclude their raw IMSI/MSISDN in the final output to maintain compliance."*
+
+Gemini will automatically generate the complex multi-table `JOIN` logic, filtering by the Premium plan, and omitting the restricted PII identifiers as requested.
+
+### Phase 3C: Real-time Streaming Insights
+To showcase real-time Agentic capabilities, start the streaming simulator in your local terminal:
+```bash
+python3 streaming_agent.py
+```
+*(Leave this running in the background)*
+
+Then, back in BigQuery Studio, ask the Agent:
+> *"Query the `am_data_streaming` table to show me a live count of alarms fired in the last 5 minutes, grouped by severity."*
+
+This demonstrates that the Data Engineering Agent can instantly interface with live, streaming tables using the BigQuery Storage Write API without waiting for batch pipelines.
+
+## Step 4: BigQuery Notebooks, BQML & Unstructured AI
+
+Now we bring in Unstructured Data (Network Troubleshooting Manuals and Customer Support Call Transcripts) and combine them with our structured metrics using the **Data Science Agent**!
+
+1. **Upload Data & Automate Setup**: Run the two helper scripts to upload your unstructured data to Cloud Storage and automatically create the BigQuery Vertex AI Connection (`gemini-conn`) and the Object Table (`support_transcripts`):
+```bash
+./upload_unstructured_to_gcs.sh
+./setup_vertex_ai_bq.sh
+```
+
+2. **Open BigQuery Notebooks**: In BigQuery Studio, click on **Notebooks** and create a new Python notebook. Open the **Data Science Agent (Gemini)** pane on the side.
+
+3. **Train a BQML Model for Anomaly Detection**: Ask the Data Science Agent to generate code using BigQuery DataFrames (`bigframes`) to train an anomaly detection clustering model on your secure network metrics:
+> *"Using BigQuery DataFrames (`bigframes`), write code to train a K-Means clustering model named `node_risk_clusters` on the `raw_telco_data.pm_data_secured` table. Cluster the nodes based on `latency_ms` and `packet_drop_rate_percent` using 3 clusters to identify high-risk nodes."*
+*(Run the generated cell. This demonstrates how data scientists can build BQML models directly in Python without writing SQL!)*
+
+4. **Multi-Modal Data Correlation**: This is the magic moment. We will use `ML.GENERATE_TEXT` with Gemini to extract the customer's phone number from the raw text transcript, and instantly join it with our structured PM/AM data and our new BQML predictions!
+In the notebook, ask the Data Science Agent:
+> *"Write a SQL query using the `%%bigquery` magic command. Use `ML.GENERATE_TEXT` with the `gemini-pro` model and connection `gemini-conn` to extract the customer's MSISDN phone number from the `raw_telco_data.support_transcripts` object table text. Then, join that extracted MSISDN with the `customer_data` and `am_data` tables. Finally, join that with the `pm_data_secured` table to show the latency of the node they were attached to. Return the customer name, their complaint text, the alarm severity, and the node's latency."*
+
+Gemini will generate a powerful multi-modal query right in your notebook that bridges the gap between angry customer calls and physical 5G antenna telemetry!
