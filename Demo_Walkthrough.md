@@ -114,6 +114,13 @@ The final pillar of the Agentic Data Cloud is making security, compliance, and g
 
 1. **Active Metadata Governance (The Retention Agent)**:
 In the Agentic Data Cloud, we don't write manual retention scripts. Instead, we use a **Retention Agent** connected to the Knowledge Catalog's **Metadata Change Feeds**.
+* **Metadata Setup**:
+  Before applying policies, create the required Dataplex Aspect Types and Business Glossary for the Telco dataset by running the setup script:
+  ```bash
+  python3 setup_glossary_and_aspect.py
+  ```
+  This creates a `Data Owner` Aspect (String), a `Contains PII` Aspect (Boolean), and a `Telco Analytics Glossary`. The glossary includes calculated metrics (like High Latency Ratio and Premium Customer Impact) which the Conversational Analytics Agent will read to automatically generate complex SQL!
+
 * **Setup**: 
   First, grant the default compute service account the permissions needed to execute BigQuery DDL on behalf of the Cloud Function (replace `<PROJECT_ID>` and `<PROJECT_NUMBER>` accordingly, e.g. `telco-kc` and `568311752105`):
   ```bash
