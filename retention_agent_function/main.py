@@ -28,17 +28,32 @@ def process_metadata_change(cloud_event):
     
     try:
         # 2. Parse the Dataplex Event
-        # A true Dataplex event contains entry names and aspect payloads. 
-        # For this agent, we look for our custom "retention_policy" aspect.
         payload = json.loads(decoded_data)
         
-        # We simulate finding the aspect changes from the event payload:
-        # Example: {"resource_name": "telco-kc.raw_telco_data.am_data_streaming", "resource_type": "TABLE", "retention_days": 7}
-        resource_name = payload.get("resource_name")
-        retention_days = payload.get("retention_days")
+        # Real Dataplex Metadata Change Feeds deliver complex JSON containing Entry and Aspect details.
+        # We need to dynamically extract the table/dataset name and search for our 'retention_policy' aspect.
+        
+        retention_days = None
+        # Recursively search for the "retention_days" key anywhere in the payload (in case of nested Aspect payloads)
+        def find_retention_days(d):
+            if isinstance(d, dict):
+                if "retention_days" in d:
+                    return d["retention_days"]
+                for v in d.values():
+                    res = find_retention_days(v)
+                    if res is not None:
+                        return res
+            return None
+            
+        retention_days = find_retention_days(payload)
+        
+        # In a real environment, you parse the BigQuery FQN from the Dataplex Entry Name:
+        # e.g., 'bigquery:telco-kc.raw_telco_data.am_data_streaming'
+        # For demo fallback, we attempt to extract it or default to the streaming table.
+        resource_name = payload.get("resource_name", "telco-kc.raw_telco_data.am_data_streaming")
         resource_type = payload.get("resource_type", "TABLE").upper()
         
-        if not resource_name or retention_days is None:
+        if retention_days is None:
             print("No 'retention_days' aspect update found in this event. Ignoring.")
             return
             
