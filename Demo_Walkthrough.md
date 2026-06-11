@@ -108,6 +108,16 @@ In the notebook, ask the Data Science Agent:
 
 Gemini will generate a powerful multi-modal query right in your notebook that bridges the gap between angry customer calls and physical 5G antenna telemetry!
 
+7. **Zero-Shot Forecasting with TimesFM**: Finally, showcase the power of Google's new foundation model for time series, **TimesFM**. Because `pm_data_secured` contains dense, 5-minute interval telemetry, it's the perfect dataset for zero-shot forecasting without needing to train a model first!
+In the notebook, ask the Data Science Agent:
+> *"Write a query to use the TimesFM model to forecast the `traffic_volume_gb` for the next 12 hours for node 'AMF-01'. Use the `pm_data_secured` table, aggregate the data to hourly intervals using the `timestamp` column, and order the results."*
+*(This highlights how you can instantly predict capacity bottlenecks on the network without spending weeks training custom ARIMA models).*
+
+8. **Vector Search & RAG (Automated AI Triage)**: We still have our unstructured Troubleshooting Manuals! Let's highlight BigQuery's native Vector Search by instantly finding the correct resolution for a live network alarm.
+In the notebook, ask the Data Science Agent:
+> *"Write a BigQuery SQL script to perform a full Retrieval-Augmented Generation (RAG) workflow. First, use `ML.GENERATE_EMBEDDING` with the `text-embedding-004` model to create embeddings for the `network_manuals` object table. Then, take the most recent 'CRITICAL' alarm description from the `am_data` table, generate an embedding for it, and use the `VECTOR_SEARCH` function to find the top 1 most relevant troubleshooting manual. Finally, join the result back to the object table, convert the raw `data` bytes to a string using `SAFE_CONVERT_BYTES_TO_STRING`, and use `ML.GENERATE_TEXT` with the `gemini-pro` model (via `gemini-conn`) to read that manual text and generate a bulleted resolution plan for the specific alarm."*
+*(This is a massive wow-factor: You are doing full RAG entirely natively inside BigQuery! It searches the PDFs/Markdown via vector embeddings, reads the file contents directly from GCS without leaving the SQL interface, and uses Gemini to summarize the exact fix for the NOC engineer!)*
+
 ## Step 5: Automated Governance & Security (RBAC, RLS, CLS)
 
 The final pillar of the Agentic Data Cloud is making security, compliance, and governance effortless.

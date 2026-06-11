@@ -31,5 +31,14 @@ OPTIONS (
   uris = ['gs://${BUCKET_NAME}/transcripts/*']
 );"
 
+echo "5. Creating Object Table 'network_manuals'..."
+bq query --use_legacy_sql=false \
+"CREATE EXTERNAL TABLE IF NOT EXISTS \`${PROJECT_ID}.${DATASET_ID}.network_manuals\`
+WITH CONNECTION \`${PROJECT_ID}.${REGION}.gemini-conn\`
+OPTIONS (
+  object_metadata = 'SIMPLE',
+  uris = ['gs://${BUCKET_NAME}/manuals/*']
+);"
+
 echo ""
-echo "Setup Complete! The Vertex AI connection and Object Table are ready for ML.GENERATE_TEXT queries."
+echo "Setup Complete! The Vertex AI connection and Object Tables are ready for ML."
