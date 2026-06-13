@@ -76,7 +76,7 @@ python3 streaming_agent.py
 *(Leave this running in the background)*
 
 Then, back in BigQuery Studio, ask the Agent:
-> *"Query the `am_data_streaming` table to show me a live count of alarms fired in the last 5 minutes, grouped by severity."*
+> *"Query the `am_data_streaming` table to show me a live count of alarms fired in the last 5 minutes, grouped by severity, specifically handling the Europe/Stockholm timezone."*
 
 This demonstrates that the Data Engineering Agent can instantly interface with live, streaming tables using the BigQuery Storage Write API without waiting for batch pipelines.
 
